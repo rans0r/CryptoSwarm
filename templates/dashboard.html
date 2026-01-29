@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CryptoSwarm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-size: 1.8em;
+        }
+        
+        nav {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        nav a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 20px;
+            font-weight: 500;
+        }
+        
+        nav a:hover {
+            color: #764ba2;
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 1em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .bot-list, .trade-list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-active {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .status-inactive {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .api-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .api-info h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .api-info code {
+            background: #fff;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐝 CryptoSwarm Dashboard</h1>
+            <div id="auth-status">Not authenticated</div>
+        </header>
+        
+        <nav>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/docs">API Docs</a>
+        </nav>
+        
+        <main>
+            <div class="api-info">
+                <h3>📝 Getting Started</h3>
+                <p>
+                    This dashboard provides a basic view of your CryptoSwarm system. 
+                    For full functionality, use the API endpoints documented at <a href="/docs">/docs</a>.
+                </p>
+                <p style="margin-top: 10px;">
+                    <strong>Quick Start:</strong>
+                </p>
+                <ol style="margin-left: 20px; margin-top: 10px;">
+                    <li>Configure your API keys in <code>.env</code> file</li>
+                    <li>Use the API to authenticate and get a token</li>
+                    <li>Create bots with natural language rules</li>
+                    <li>Monitor performance and let evolution optimize your strategies</li>
+                </ol>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <h3>Total Bots</h3>
+                    <div class="value" id="total-bots">-</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Active Bots</h3>
+                    <div class="value" id="active-bots">-</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Trades</h3>
+                    <div class="value" id="total-trades">-</div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>System Status</h3>
+                    <div class="value" id="system-status">-</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Recent Bots</h2>
+                <div class="bot-list">
+                    <div class="loading" id="bots-loading">
+                        Loading bots... (API authentication required)
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Recent Trades</h2>
+                <div class="trade-list">
+                    <div class="loading" id="trades-loading">
+                        Loading trades... (API authentication required)
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>API Endpoints</h2>
+                <p>Use these endpoints to interact with CryptoSwarm:</p>
+                <ul style="margin-left: 20px; margin-top: 10px; line-height: 2;">
+                    <li><code>POST /auth/token</code> - Get authentication token</li>
+                    <li><code>GET /bots/</code> - List all bots</li>
+                    <li><code>POST /bots/</code> - Create a new bot</li>
+                    <li><code>GET /trades/</code> - List all trades</li>
+                    <li><code>POST /swarm/pools/{id}/evolve</code> - Trigger evolution</li>
+                </ul>
+                <p style="margin-top: 15px;">
+                    <a href="/docs" class="btn">View Full API Documentation</a>
+                </p>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // Load system status
+        async function loadStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                document.getElementById('system-status').textContent = 
+                    data.kraken_initialized ? '✓ OK' : '⚠ Setup';
+                
+            } catch (error) {
+                console.error('Error loading status:', error);
+                document.getElementById('system-status').textContent = '⚠ Error';
+            }
+        }
+        
+        // Load on page load
+        loadStatus();
+        
+        // Note: Full bot and trade loading requires authentication
+        // For now, we show a placeholder. In production, implement JWT auth in the frontend
+        document.getElementById('total-bots').textContent = '0';
+        document.getElementById('active-bots').textContent = '0';
+        document.getElementById('total-trades').textContent = '0';
+    </script>
+</body>
+</html>
